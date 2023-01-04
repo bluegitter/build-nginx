@@ -1,4 +1,5 @@
 #
+%global _topdir     %(echo $HOME)/rpmbuild-%{name}
 %define nginx_home %{_localstatedir}/cache/nginx
 %define nginx_user nginx
 %define nginx_group nginx
@@ -74,8 +75,8 @@ Requires(pre): shadow-utils
 
 %define BASE_CONFIGURE_ARGS $(echo "--prefix=%{_sysconfdir}/nginx --sbin-path=%{_sbindir}/nginx --modules-path=%{_libdir}/nginx/modules --conf-path=%{_sysconfdir}/nginx/nginx.conf --error-log-path=%{_localstatedir}/log/nginx/error.log --http-log-path=%{_localstatedir}/log/nginx/access.log --pid-path=%{_localstatedir}/run/nginx.pid --lock-path=%{_localstatedir}/run/nginx.lock --http-client-body-temp-path=%{_localstatedir}/cache/nginx/client_temp --http-proxy-temp-path=%{_localstatedir}/cache/nginx/proxy_temp --http-fastcgi-temp-path=%{_localstatedir}/cache/nginx/fastcgi_temp --http-uwsgi-temp-path=%{_localstatedir}/cache/nginx/uwsgi_temp --http-scgi-temp-path=%{_localstatedir}/cache/nginx/scgi_temp --user=%{nginx_user} --group=%{nginx_group} --with-compat --with-file-aio --with-threads --with-http_addition_module --with-http_auth_request_module --with-http_dav_module --with-http_flv_module --with-http_gunzip_module --with-http_gzip_static_module --with-http_mp4_module --with-http_random_index_module --with-http_realip_module --with-http_secure_link_module --with-http_slice_module --with-http_ssl_module --with-http_stub_status_module --with-http_sub_module --with-http_v2_module --with-mail --with-mail_ssl_module --with-stream --with-stream_realip_module --with-stream_ssl_module --with-stream_ssl_preread_module")
 
-%define graphite_nginx_module_version 4.2
-%define headers_more_nginx_module_version 0.32
+#%define graphite_nginx_module_version 4.2
+#%define headers_more_nginx_module_version 0.32
 
 Summary: High performance web server
 Name: nginx
@@ -96,8 +97,6 @@ Source7: nginx-debug.service
 Source8: nginx.copyright
 Source9: nginx.check-reload.sh
 
-Source100: https://github.com/mailru/graphite-nginx-module/archive/v%{graphite_nginx_module_version}.tar.gz#/graphite-nginx-module-%{graphite_nginx_module_version}.tar.gz
-Source101: https://github.com/openresty/headers-more-nginx-module/archive/v%{headers_more_nginx_module_version}.tar.gz#/headers-more-nginx-module-%{headers_more_nginx_module_version}.tar.gz
 
 License: 2-clause BSD-like license
 
@@ -118,16 +117,14 @@ a mail proxy server.
 
 %prep
 %autosetup -p1
-%setup -q -T -D -a 100
-%setup -q -T -D -a 101
-patch -p1 < %{bdir}/graphite-nginx-module-%{graphite_nginx_module_version}/graphite_module_v1_15_4.patch
+#%setup -q -T -D -a 100
+#%setup -q -T -D -a 101
+#patch -p1 < %{bdir}/graphite-nginx-module-%{graphite_nginx_module_version}/graphite_module_v1_15_4.patch
 
 %build
 ./configure %{BASE_CONFIGURE_ARGS} \
     --with-cc-opt="%{WITH_CC_OPT}" \
     --with-ld-opt="%{WITH_LD_OPT}" \
-    --add-module=graphite-nginx-module-%{graphite_nginx_module_version} \
-    --add-module=headers-more-nginx-module-%{headers_more_nginx_module_version} \
     --with-http_geoip_module \
     --with-debug
 make %{?_smp_mflags}
@@ -136,8 +133,6 @@ make %{?_smp_mflags}
 ./configure %{BASE_CONFIGURE_ARGS} \
     --with-cc-opt="%{WITH_CC_OPT}" \
     --with-ld-opt="%{WITH_LD_OPT}" \
-    --add-module=graphite-nginx-module-%{graphite_nginx_module_version} \
-    --add-module=headers-more-nginx-module-%{headers_more_nginx_module_version} \
     --with-http_geoip_module \
 
 make %{?_smp_mflags}
@@ -696,4 +691,3 @@ fi
 - gunzip module added
 - spdy module added if openssl version >= 1.0.1
 - set permissions on default log files at installation
-
